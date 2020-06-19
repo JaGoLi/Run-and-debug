@@ -12,19 +12,35 @@
 static const int asizeh = 256; /* max number of characters in a file - same as in struct dirent - do not change */
 static int getdirfiles(char directory[], char database[][asizeh]);
 static int getdirnum(char directory[]);
+static int sortalpha(const void *p, const void *q);
 
 void main() {
-	const int avsize = getdirnum("/usr/bin");
-	printf("Number of files: %i\n", avsize);
+	char pwd[] = "/usr/bin"; 
+
+	const int avsize = getdirnum(pwd);
 
 	char list[avsize][asizeh];
-	getdirfiles("/usr/bin", list);
-	
+	getdirfiles(pwd, list);
+
+	qsort(list, avsize, asizeh, sortalpha);
+
+	int i;
+	for (i = 3; i < avsize; i++){	
 	char test[asizeh];	
-	strcpy(test ,list[1000]);
+	strcpy(test ,list[i]);
 	
 	printf("%s\n", test);	
+		}
+	printf("Number of files: %i\n", avsize + 1);
 } 
+
+
+int sortalpha(const void *p, const void *q) {
+	const char *cp = (const char *) p;
+	const char *cq = (const char *) q;
+	return strcmp(cp, cq);
+}	
+
  
 int getdirfiles(char directory[], char database[][asizeh])
 {
@@ -59,4 +75,3 @@ int getdirnum(char directory[]) {
 	closedir(current);
 }
 
-	
