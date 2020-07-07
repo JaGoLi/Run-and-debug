@@ -2,5 +2,5 @@
 An ncurses based application giving a list of all executables in a directory, and giving the user an interactive prompt with them sorted alphabetically. Once you hit enter, the program from the top will launch inside the terminal will be the application's process number and stdout.
 
 ## Build
-Execute the command in the same directory as the program.
-"gcc -lncurses -o list_files list_files.c"
+Execute the command in the same directory as the program.<br/>
+```gcc -lncurses -o list_files list_files.c```
