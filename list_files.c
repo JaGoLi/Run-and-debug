@@ -16,8 +16,11 @@ static int getdirfiles(char directory[], char database[][asizeh]);
 static int getdirnum(char directory[]);
 static int sortalpha(const void *p, const void *q);
 static void program(char *array, bool parent, bool child); 
+static void printmatches(const int num_progs, char database[][asizeh]);
+static void startwin();
 
 //string vars
+char uprompt[] = "Search for program: ";
 char *string = NULL;
 char *selprog;
 size_t mem = 0, charsize = 0;
@@ -29,11 +32,13 @@ typedef struct {
 	int term_cols;
 } WinProps;
 
+WinProps *wp;
+
 typedef struct timespec timespec;
 
 
-void main() {
-	char pwd[] = "/usr/bin"; 
+int main() {
+	char pwd[] = "/usr/local/bin"; 
 
 	const int avsize = getdirnum(pwd);
 
@@ -42,41 +47,11 @@ void main() {
 
 	qsort(list, avsize, asizeh, sortalpha);
 
-	initscr();
-	noecho();
-	cbreak();
+	startwin();
 
-	WinProps *wp;
 	wp = malloc(sizeof(int));
 	
 	getmaxyx(stdscr, wp->term_rows, wp->term_cols);
-
-	char uprompt[] = "Search for program: ";
-
-	void printmatches() {
-	int i;
-	int selines = 1;
-	for (i = 3; i < avsize; i++){	
-	char test[asizeh];	
-
-	if ((strncmp(list[i], string, strlen(string)) == 0) && (selines < wp->term_rows)) {	
-		if(selines == 1) { 
-			selprog = NULL;
-			selprog = malloc(256 * sizeof(char));
-			strcpy(selprog, list[i]);
-		}
-	
-	
-	strcpy(test ,list[i]);
-	selines++;
-
-	printw("%s\n", test);
-			}
-	else continue;
-		}
-
-	move(0, charsize + strlen(uprompt));
-	}
 
 	printw(uprompt);
 	move(1,0);
@@ -101,7 +76,7 @@ void main() {
 		move(1,0);
 		clrtobot();
 
-		printmatches();
+		printmatches(avsize, list);
 			}
 		break;
 		}	
@@ -119,15 +94,46 @@ void main() {
 
         string[charsize++] = ch;
 	
-	printmatches();
+	printmatches(avsize, list);
     	    	}
 	   }
 	}
 
 	endwin();
 	program(selprog, true, true);
-	return;
+	return 0;
 } 
+
+void startwin() {
+	initscr();
+	noecho();
+	cbreak();
+}
+
+void printmatches(const int num_progs, char finaldata[][asizeh]) {
+	int i;
+	int selines = 1;
+	for (i = 3; i < num_progs; i++){	
+	char test[asizeh];	
+
+	if ((strncmp(finaldata[i], string, strlen(string)) == 0) && (selines < wp->term_rows)) {	
+		if(selines == 1) { 
+			selprog = NULL;
+			selprog = malloc(256 * sizeof(char));
+			strcpy(selprog, finaldata[i]);
+		}
+	
+	
+	strcpy(test, finaldata[i]);
+	selines++;
+
+	printw("%s\n", test);
+			}
+	else continue;
+		}
+
+	move(0, charsize + strlen(uprompt));
+}
 
 int sortalpha(const void *p, const void *q) {
 	const char *cp = (const char *) p;
@@ -189,9 +195,11 @@ void program(char *array, bool parent, bool child) {
 	int childpid = getpid();
 	printf("child process number is: %i\n", childpid);
 		}
+	
+	char *cmd[] = { array, (char *)0 };
+	execvp(array, cmd);
 
-	execvp(array, NULL);
-	exit(1);
+	exit(0);
 	}
 
 	else {
