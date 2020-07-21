@@ -12,7 +12,7 @@
 
 //functions
 static const int asizeh = 256; /* max number of characters in a file - same as in struct dirent - do not change */
-static int getdirfiles(char directory[], char database[][asizeh]);
+static int getdirfiles(int vplace, char directory[], char database[][asizeh]);
 static int getdirnum(char directory[]);
 static int sortalpha(const void *p, const void *q);
 static void program(char *array, bool parent, bool child); 
@@ -26,6 +26,10 @@ char *selprog;
 size_t mem = 0, charsize = 0;
 int ch = EOF;
 
+//path direcotires
+char pwd1[] = "/usr/bin";
+char pwd2[] = "/usr/local/bin"; 
+
 //structs
 typedef struct {
 	int term_rows;
@@ -38,14 +42,17 @@ typedef struct timespec timespec;
 
 
 int main() {
-	char pwd[] = "/usr/local/bin"; 
 
-	const int avsize = getdirnum(pwd);
+	const int avsize1 = getdirnum(pwd1);
+	const int avsize2 = getdirnum(pwd2);
 
-	char list[avsize][asizeh];
-	getdirfiles(pwd, list);
+	const int avtotal = avsize1 + avsize2;
+	char list[avtotal][asizeh];
 
-	qsort(list, avsize, asizeh, sortalpha);
+	getdirfiles(0, pwd1, list);
+	getdirfiles(avsize1, pwd2, list);
+
+	qsort(list, avtotal, asizeh, sortalpha);
 
 	startwin();
 
@@ -57,9 +64,9 @@ int main() {
 	move(1,0);
 	
 	int i;
-	int linetot = wp->term_rows + 2;
+	int linetot = wp->term_rows + 4;
 
-	for (i = 3; i < linetot; i++) {
+	for (i = 5; i < linetot; i++) {
 		char temp[asizeh];
 		strcpy(temp, list[i]);
 		printw("%s\n", temp);
@@ -76,7 +83,7 @@ int main() {
 		move(1,0);
 		clrtobot();
 
-		printmatches(avsize, list);
+		printmatches(avtotal, list);
 			}
 		break;
 		}	
@@ -94,7 +101,7 @@ int main() {
 
         string[charsize++] = ch;
 	
-	printmatches(avsize, list);
+	printmatches(avtotal, list);
     	    	}
 	   }
 	}
@@ -113,7 +120,7 @@ void startwin() {
 void printmatches(const int num_progs, char finaldata[][asizeh]) {
 	int i;
 	int selines = 1;
-	for (i = 3; i < num_progs; i++){	
+	for (i = 5; i < num_progs; i++){	
 	char test[asizeh];	
 
 	if ((strncmp(finaldata[i], string, strlen(string)) == 0) && (selines < wp->term_rows)) {	
@@ -138,13 +145,12 @@ void printmatches(const int num_progs, char finaldata[][asizeh]) {
 int sortalpha(const void *p, const void *q) {
 	const char *cp = (const char *) p;
 	const char *cq = (const char *) q;
-	return strcmp(cp, cq);
+	return strcasecmp(cp, cq);
 }	
 
  
-int getdirfiles(char directory[], char database[][asizeh])
+int getdirfiles(int vplace, char directory[], char database[][asizeh])
 {
-    int asizev = 0;
     DIR *current = opendir(directory);
     struct dirent *dirstc;
 
@@ -154,8 +160,8 @@ int getdirfiles(char directory[], char database[][asizeh])
 	}
     
     while ((dirstc = readdir(current)) != NULL) {
-	strcpy(database[asizev], dirstc->d_name);
-	asizev++; 
+	strcpy(database[vplace], dirstc->d_name);
+	vplace++; 
 	}
     
 	closedir(current);
@@ -169,7 +175,7 @@ int getdirnum(char directory[]) {
 
 	if (current == NULL) printf("error");
 
-	for(i = 0; (dirstc = readdir(current)) != NULL; i++);
+	for(i = 1; (dirstc = readdir(current)) != NULL; i++);
 
 	closedir(current);
 	return i;
@@ -196,8 +202,8 @@ void program(char *array, bool parent, bool child) {
 	printf("child process number is: %i\n", childpid);
 		}
 	
-	char *cmd[] = { array, (char *)0 };
-	execvp(array, cmd);
+	char *cmd[] = { "st", array, (char *)0 };
+	execvp(cmd[0], cmd);
 
 	exit(0);
 	}
