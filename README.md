@@ -3,4 +3,5 @@ An ncurses based application giving a list of all executables in a directory, an
 
 ## Build
 Execute the command in the same directory as the program.<br/>
+By default the application uses ```st``` to launch terminal applications.<br/>
 ```cc -lncurses -o list_files list_files.c```
