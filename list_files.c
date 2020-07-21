@@ -56,7 +56,7 @@ int main() {
 
 	startwin();
 
-	wp = malloc(sizeof(int));
+	wp = (WinProps *) malloc(sizeof(int));
 	
 	getmaxyx(stdscr, wp->term_rows, wp->term_cols);
 
@@ -96,7 +96,7 @@ int main() {
 
         if (mem <= charsize) {
             mem += sizeof(char);
-            string = realloc(string, mem);
+            string = (char *) realloc(string, mem);
         }
 
         string[charsize++] = ch;
@@ -126,7 +126,7 @@ void printmatches(const int num_progs, char finaldata[][asizeh]) {
 	if ((strncmp(finaldata[i], string, strlen(string)) == 0) && (selines < wp->term_rows)) {	
 		if(selines == 1) { 
 			selprog = NULL;
-			selprog = malloc(256 * sizeof(char));
+			selprog = (char *) malloc(256 * sizeof(char));
 			strcpy(selprog, finaldata[i]);
 		}
 	
@@ -202,7 +202,8 @@ void program(char *array, bool parent, bool child) {
 	printf("child process number is: %i\n", childpid);
 		}
 	
-	char *cmd[] = { "st", array, (char *)0 };
+	char *stcmd = (char *) "st";
+	char *cmd[] = { stcmd, array, (char *)0 };
 	execvp(cmd[0], cmd);
 
 	exit(0);
